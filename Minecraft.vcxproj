@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{ced1b9f5-e2b3-49d5-b4ea-189f823560d4}</ProjectGuid>
-    <RootNamespace>BGFX-Template</RootNamespace>
+    <RootNamespace>Minecraft</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
