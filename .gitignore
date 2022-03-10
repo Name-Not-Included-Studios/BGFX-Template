@@ -11,8 +11,9 @@
 # Mono auto generated files
 mono_crash.*
 
-x64/
-x86/
+/x64/
+/x86/
+/[Dd]ebug/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
