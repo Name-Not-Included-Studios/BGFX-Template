@@ -32,5 +32,8 @@
     <ClInclude Include="src\logo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BgfxCallback.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -150,6 +150,7 @@
     <ClCompile Include="src\test_default_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BgfxCallback.h" />
     <ClInclude Include="src\fs_cubes.gl.h" />
     <ClInclude Include="src\vs_cubes.gl.h" />
     <ClInclude Include="src\logo.h" />

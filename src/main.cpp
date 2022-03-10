@@ -23,6 +23,8 @@
 
 #include <GLFW/glfw3native.h>
 
+//#include "BGFX_Callback.h"
+
 #include "vs_cubes.gl.h"
 #include "fs_cubes.gl.h"
 
@@ -55,13 +57,6 @@ static void glfw_keyCallback(GLFWwindow* window, int key, int scancode, int acti
 		s_showStats = !s_showStats;
 }
 
-void fatal(const char* _filePath, uint16_t _line, Fatal::Enum _code, const char* _str)
-{
-	std::cout << "Fatal Error at: (" << _filePath << ")\nCode: (" << _code << ")\nMessage: " << _str << std::endl;
-}
-
-//static void bgfx_fatalErrorCallback()
-
 int main(int argc, char** argv)
 {
 	// Create a GLFW window without an OpenGL context.
@@ -93,10 +88,12 @@ int main(int argc, char** argv)
 	init.platformData.nwh = glfwGetWin32Window(window);
 #endif
 
+	//BgfxCallback m_callback;
 
 	int width, height;
 	glfwGetWindowSize(window, &width, &height);
 	init.type = bgfx::RendererType::OpenGL; // automatically choose a renderer.
+	//init.callback = m_callback;
 	init.resolution.width = (uint32_t)width;
 	init.resolution.height = (uint32_t)height;
 	init.resolution.reset = BGFX_RESET_VSYNC;
@@ -139,7 +136,7 @@ int main(int argc, char** argv)
 	// Vertex Data Memory
 	//auto vertexData = bgfx::copy(verts, 9);
 	//const bgfx::Memory* vertexData = bgfx::makeRef(verts, 9);
-	auto vertexData = bgfx::copy(verts, 9);
+	auto vertexData = bgfx::makeRef(verts, sizeof(verts));
 
 	// bgfx::DynamicVertexBufferHandle
 	auto vertexBuf = bgfx::createDynamicVertexBuffer(
@@ -149,7 +146,7 @@ int main(int argc, char** argv)
 	);
 
 	// Index Data
-	auto indexData = bgfx::copy(indices, 6);
+	auto indexData = bgfx::makeRef(indices, sizeof(indices));
 	/*bgfx::DynamicIndexBufferHandle indexBuf = bgfx::createDynamicIndexBuffer(
 		indexData,
 		BGFX_BUFFER_NONE
@@ -174,12 +171,14 @@ int main(int argc, char** argv)
 
 
 		// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
-		bgfx::touch(kClearView);
+		//bgfx::touch(kClearView);
 
 
 
 		bgfx::setVertexBuffer(0, vertexBuf);
 		bgfx::setIndexBuffer(indexBuf);
+
+		bgfx::setState(BGFX_STATE_DEFAULT);
 
 		bgfx::submit(kClearView, shaderProgram);
 
@@ -188,17 +187,13 @@ int main(int argc, char** argv)
 		// Use debug font to print information about this example.
 		//bgfx::dbgTextClear();
 
-		const bgfx::Stats* stats = bgfx::getStats();
+		//const bgfx::Stats* stats = bgfx::getStats();
 
 		// Enable stats or debug text.
 		//bgfx::setDebug(s_showStats ? BGFX_DEBUG_STATS : BGFX_DEBUG_TEXT);
 
-		//std::cout << "Before Frame!" << std::endl;
-
 		// Advance to next frame. Process submitted rendering primitives.
 		bgfx::frame();
-
-		//std::cout << "After Frame!" << std::endl;
 	}
 
 
