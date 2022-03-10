@@ -1,194 +1,188 @@
-/*
- * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
- */
-#define BX_CONFIG_DEBUG true
-
-#include <stdio.h>
-#include <bx/bx.h>
-#include <bgfx/bgfx.h>
-#include <bgfx/platform.h>
-#include <GLFW/glfw3.h>
-
-
-
-#if BX_PLATFORM_LINUX
-#define GLFW_EXPOSE_NATIVE_X11
-#elif BX_PLATFORM_WINDOWS
-#define GLFW_EXPOSE_NATIVE_WIN32
-#elif BX_PLATFORM_OSX
-#define GLFW_EXPOSE_NATIVE_COCOA
-#endif
-
-#include <GLFW/glfw3native.h>
-
-#include "logo.h"
-
-static bool s_showStats = false;
-
-static void glfw_errorCallback(int error, const char* description)
-{
-	fprintf(stderr, "GLFW error %d: %s\n", error, description);
-}
-
-static void glfw_keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_F1 && action == GLFW_RELEASE)
-		s_showStats = !s_showStats;
-}
-
-int main(int argc, char** argv)
-{
-	// Create a GLFW window without an OpenGL context.
-	glfwSetErrorCallback(glfw_errorCallback);
-		
-	if (!glfwInit())
-		return 1;
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow* window = glfwCreateWindow(1024, 768, "Hello bgfx!", nullptr, nullptr);
-
-	if (!window)
-		return 1;
-
-	glfwSetKeyCallback(window, glfw_keyCallback);
-	// Call bgfx::renderFrame before bgfx::init to signal to bgfx not to create a render thread.
-	// Most graphics APIs must be used on the same thread that created the window.
-	bgfx::renderFrame();
-
-	// Initialize bgfx using the native window handle and window resolution.
-	bgfx::Init init;
-
-#if BX_PLATFORM_LINUX || BX_PLATFORM_BSD
-	init.platformData.ndt = glfwGetX11Display();
-	init.platformData.nwh = (void*)(uintptr_t)glfwGetX11Window(window);
-#elif BX_PLATFORM_OSX
-	init.platformData.nwh = glfwGetCocoaWindow(window);
-#elif BX_PLATFORM_WINDOWS
-	init.platformData.nwh = glfwGetWin32Window(window);
-#endif
-
-
-	int width, height;
-	glfwGetWindowSize(window, &width, &height);
-	init.type = bgfx::RendererType::Count; // automatically choose a renderer.
-	init.resolution.width = (uint32_t)width;
-	init.resolution.height = (uint32_t)height;
-	init.resolution.reset = BGFX_RESET_VSYNC;
-	if (!bgfx::init(init))
-		return 1;
-
-
-	// Set view 0 to the same dimensions as the window and to clear the color buffer.
-	const bgfx::ViewId kClearView = 0;
-	bgfx::setViewClear(kClearView, BGFX_CLEAR_COLOR);
-	bgfx::setViewRect(kClearView, 0, 0, bgfx::BackbufferRatio::Equal);
-
-
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-
-		// Handle window resize.
-		int oldWidth = width, oldHeight = height;
-		glfwGetWindowSize(window, &width, &height);
-
-		if (width != oldWidth || height != oldHeight) {
-			bgfx::reset((uint32_t)width, (uint32_t)height, BGFX_RESET_VSYNC);
-			bgfx::setViewRect(kClearView, 0, 0, bgfx::BackbufferRatio::Equal);
-		}
-
-		// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
-		bgfx::touch(kClearView);
-		// Use debug font to print information about this example.
-		bgfx::dbgTextClear();
-		bgfx::dbgTextImage(bx::max<uint16_t>(uint16_t(width / 2 / 8), 20) - 20, bx::max<uint16_t>(uint16_t(height / 2 / 16), 6) - 6, 40, 12, s_logo, 160);
-		bgfx::dbgTextPrintf(0, 0, 0x0f, "Press F1 to toggle stats.");
-		bgfx::dbgTextPrintf(0, 1, 0x0f, "Color can be changed with ANSI \x1b[9;me\x1b[10;ms\x1b[11;mc\x1b[12;ma\x1b[13;mp\x1b[14;me\x1b[0m code too.");
-		bgfx::dbgTextPrintf(80, 1, 0x0f, "\x1b[;0m    \x1b[;1m    \x1b[; 2m    \x1b[; 3m    \x1b[; 4m    \x1b[; 5m    \x1b[; 6m    \x1b[; 7m    \x1b[0m");
-		bgfx::dbgTextPrintf(80, 2, 0x0f, "\x1b[;8m    \x1b[;9m    \x1b[;10m    \x1b[;11m    \x1b[;12m    \x1b[;13m    \x1b[;14m    \x1b[;15m    \x1b[0m");
-		const bgfx::Stats* stats = bgfx::getStats();
-		bgfx::dbgTextPrintf(0, 2, 0x0f, "Backbuffer %dW x %dH in pixels, debug text %dW x %dH in characters.", stats->width, stats->height, stats->textWidth, stats->textHeight);
-		// Enable stats or debug text.
-		bgfx::setDebug(s_showStats ? BGFX_DEBUG_STATS : BGFX_DEBUG_TEXT);
-		// Advance to next frame. Process submitted rendering primitives.
-		bgfx::frame();
-	}
-
-	bgfx::shutdown();
-	glfwTerminate();
-	return 0;
-}
-
-
-/*
-#include <iostream>
-
 #include "bgfx/bgfx.h"
-#include "bgfx/platform.h"
+#include "platform/input.hpp"
+#include "util/util.hpp"
+#include "gfx/gfx.hpp"
+#include "state.hpp"
 
-#include "glfw/glfw3.h"
+// TODO: by #define/compile-time flag
+#include "platform/glfw/platform_glfw.hpp"
 
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include "glfw/glfw3native.h"
+#include "level/chunk.hpp"
+#include "level/area.hpp"
+#include "player.hpp"
+#include <string>
 
-#define WNDW_WIDTH 1600
-#define WNDW_HEIGHT 900
+// global state, referenced from state.hpp
+static State global_state;
+State &state = global_state;
 
-int main()
-{
-    std::cout << "Begin Init" << std::endl;
+std::unique_ptr<level::Area> area;
+std::unique_ptr<level::AreaRenderer> area_renderer;
 
-    if (!glfwInit())
-    {
-        std::cerr << "GLFW Initialisation failed" << std::endl;
-        return false;
+static void tick() {
+    state.time.section_tick.begin();
+    state.platform.tick();
+    area->tick();
+    state.player.tick();
+    state.time.section_tick.end();
+}
+
+static void update() {
+    state.time.section_update.begin();
+    state.platform.update();
+    state.player.update();
+    state.time.update();
+
+    state.time.section_update.end();
+
+    for (usize i = 0; i < state.time.frame_ticks; i++) {
+        tick();
+    }
+}
+
+static void render() {
+    // state.time.section_render.begin();
+
+    // TODO: move debug text elsewhere
+    std::vector<std::pair<std::string, f64>> times = {
+        { "FRAME: ",    state.time.section_frame.avg()  },
+        { "UPDATE: ",   state.time.section_update.avg() },
+        { "RENDER: ",   state.time.section_render.avg() },
+        { "TICK: ",     state.time.section_tick.avg()   },
+    };
+
+    int y = 0;
+    for (const auto &[s, t] : times) {
+        auto str =
+            std::stringstream() << s
+                << std::fixed << std::setprecision(3)
+                << util::Time::to_millis(t) << " ms";
+        // bgfx::dbgTextPrintf(0, y, ((0x2 + y) << 4) | 0xF, str.str().c_str());
+        y++;
     }
 
-    GLFWwindow* window = glfwCreateWindow(WNDW_WIDTH, WNDW_HEIGHT, "hello, bgfx!", NULL, NULL);
-    // glfwMaximizeWindow(window);
+    // state.time.section_render.end();
+}
 
-    if (window == NULL)
-    {
-        glfwTerminate();
-        std::cerr << "GLFW Window Initialisation failed" << std::endl;
-        return false;
+int main(UNUSED int argc, UNUSED char *argv[]) {
+    state.frame_allocator = util::Bump(16384);
+    state.time = util::Time([](){
+            return
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    std::chrono::high_resolution_clock::now()
+                        .time_since_epoch()).count();
+        });
+    state.platform.resources_path = "res";
+    state.platform.log_out = &std::cout;
+    state.platform.log_err = &std::cerr;
+
+    state.platform.settings =
+        toml::parse(
+            util::read_file(state.platform.resources_path + "/defaults.toml")
+                .unwrap());
+
+    state.platform.window =
+        std::unique_ptr<platform::GLFW::Window>(
+            new platform::GLFW::Window(
+                glm::ivec2(
+                    state.platform.settings["gfx"]["width"].value_or(1280),
+                    state.platform.settings["gfx"]["height"].value_or(720)),
+                "GAME"));
+
+    state.renderer.init();
+    state.platform.inputs["mouse"] =
+        std::unique_ptr<platform::Input>(
+            new platform::GLFW::Mouse(
+                *dynamic_cast<platform::GLFW::Window*>(
+                    state.platform.window.get())));
+    state.platform.inputs["keyboard"] =
+        std::unique_ptr<platform::Input>(
+            new platform::GLFW::Keyboard(
+                *dynamic_cast<platform::GLFW::Window*>(
+                    state.platform.window.get())));
+
+    // TODO: do elsewhere
+    // capture mouse
+    state.platform.get_input<platform::Mouse>()
+        .set_mode(platform::Mouse::DISABLED);
+
+    area = std::make_unique<level::Area>(level::gen);
+    area_renderer = std::make_unique<level::AreaRenderer>(*area);
+
+    auto window_size = state.platform.window->get_size();
+    state.player =
+        Player(
+            util::PerspectiveCamera(
+                glm::radians(75.0f),
+                window_size.x / (f32) window_size.y,
+                glm::vec2(0.08f, 128.0f)),
+            area.get());
+
+    float time = 0.0;
+    while (!state.platform.window->is_close_requested()) {
+        state.time.section_frame.begin();
+        bgfx::dbgTextClear();
+
+        time += 0.3f;
+        state.platform.window->prepare_frame();
+        state.renderer.prepare_frame();
+
+        // TODO: remove this
+        area->center = glm::ivec3(state.player.position);
+
+        // TODO: remove this too
+        auto &keyboard = state.platform.get_input<platform::Keyboard>();
+
+        for (usize i = 0; i < 10; i++) {
+            const auto key = keyboard[std::to_string(i)];
+            if (key && (*key)->pressed) {
+                state.player.place_tile = static_cast<level::TileId>(i + 1);
+            }
+        }
+
+        if (keyboard["q"] && (*keyboard["q"])->pressed) {
+            state.player.place_tile = level::ID_WOOD;
+        }
+
+        if (keyboard["p"] && (*keyboard["p"])->pressed) {
+            state.player.flying = !state.player.flying;
+        }
+
+        auto &composite = *state.renderer.programs["composite"];
+        composite.try_set("u_show_buffer", glm::vec4(0, 0, 0, 0));
+
+        update();
+
+        state.time.section_render.begin();
+        render();
+
+        state.renderer.look_camera = &state.player.camera;
+        // TODO: do this in the renderer!!!
+        state.renderer.sun.direction = glm::vec3(0.60f, -0.7f, -0.30f);
+        state.renderer.sun.update(*area, state.player.camera);
+        // TODO: !!!
+        state.renderer.composite(
+            [&](bgfx::ViewId view, u64 flags) {
+                area_renderer->render(
+                    level::Tile::RenderPass::DEFAULT, view, flags);
+                area_renderer->render(
+                    level::Tile::RenderPass::WATER, view, flags);
+            });
+
+        state.throttles.gen = 0;
+        state.throttles.mesh = 0;
+
+        state.renderer.end_frame();
+        state.platform.window->end_frame();
+        state.time.section_render.end();
+        state.time.section_frame.end();
+        state.frame_allocator.clear();
     }
 
-    glfwMakeContextCurrent(window);
+    // TODO: remove
+    area_renderer.reset();
+    area.reset();
 
-    {
-        bgfx::PlatformData pd;
-        pd.nwh = glfwGetWin32Window(window);
-        bgfx::setPlatformData(pd);
-    }
-
-    {
-        bgfx::Init bgfxInit;
-        bgfxInit.type = bgfx::RendererType::Vulkan; // automatically choose a renderer.
-        bgfxInit.resolution.width = WNDW_WIDTH;
-        bgfxInit.resolution.height = WNDW_HEIGHT;
-        bgfxInit.resolution.reset = BGFX_RESET_VSYNC;
-        bgfx::init(bgfxInit);
-    }
-
-    std::cout << "Init Complete!" << std::endl;
-
-    bgfx::setViewClear(0, BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH, 0x443355FF, 1.0f, 0);
-    bgfx::setViewRect(0, 0, 0, WNDW_WIDTH, WNDW_HEIGHT);
-
-    unsigned int counter = 0;
-    while (!glfwWindowShouldClose(window)) {
-        std::cout << "Begin Frame: #" << counter << "!" << std::endl;
-
-        glfwPollEvents();
-
-        bgfx::frame();
-
-        counter++;
-
-        // glfwSwapBuffers(window);
-    }
-
+    util::log::print("Exiting normally");
     return 0;
 }
-*/
