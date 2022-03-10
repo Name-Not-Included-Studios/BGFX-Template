@@ -22,7 +22,23 @@
 
 #include <GLFW/glfw3native.h>
 
-#include "logo.h"
+
+
+const float verts[] =
+{
+	0.0, 0.0, 0.0,
+	1.0, 1.0, 0.0,
+	1.0, 0.0, 1.0,
+};
+
+const int indices[] =
+{
+	0, 1, 2,
+	1, 3, 2,
+};
+
+
+
 
 static bool s_showStats = false;
 
@@ -86,6 +102,45 @@ int main(int argc, char** argv)
 	bgfx::setViewRect(kClearView, 0, 0, bgfx::BackbufferRatio::Equal);
 
 
+	// Shader Stuff
+
+	auto vertexShader = bgfx::createShader();
+	auto fragmentShader = bgfx::createShader();
+
+
+	// Program stuff
+	auto shaderProgram = bgfx::createProgram(vertexShader, fragmentShader, true);
+
+
+
+	// Vertex Layout Stuff
+	bgfx::VertexLayout vertexLayout = bgfx::VertexLayout();
+	vertexLayout
+		.begin()
+		.add(bgfx::Attrib::Position, 3, bgfx::AttribType::Float)
+		.add(bgfx::Attrib::Color0, 4, bgfx::AttribType::Float)
+		.end();
+
+	bgfx::VertexLayoutHandle vertexLayoutHandle = bgfx::createVertexLayout(vertexLayout);
+
+
+	// Vertex Data Memory
+	//auto vertexData = bgfx::copy(verts, 9);
+	auto vertexData = bgfx::makeRef(verts, 9);
+
+	bgfx::DynamicVertexBufferHandle vertexBuf = bgfx::createDynamicVertexBuffer(
+		vertexData,
+		vertexLayout,
+		BGFX_BUFFER_NONE
+	);
+
+	// Index Data
+	auto indexData = bgfx::makeRef(indices, 6);
+	bgfx::DynamicIndexBufferHandle indexBuf = bgfx::createDynamicIndexBuffer(
+		indexData,
+		BGFX_BUFFER_NONE
+	);
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -98,6 +153,13 @@ int main(int argc, char** argv)
 			bgfx::setViewRect(kClearView, 0, 0, bgfx::BackbufferRatio::Equal);
 		}
 
+
+		bgfx::setVertexBuffer(0, vertexBuf);
+		bgfx::setIndexBuffer(indexBuf);
+
+		bgfx::submit(kClearView, shaderProgram);
+
+
 		// This dummy draw call is here to make sure that view 0 is cleared if no other draw calls are submitted to view 0.
 		bgfx::touch(kClearView);
 
@@ -108,9 +170,16 @@ int main(int argc, char** argv)
 
 		// Enable stats or debug text.
 		bgfx::setDebug(s_showStats ? BGFX_DEBUG_STATS : BGFX_DEBUG_TEXT);
+
 		// Advance to next frame. Process submitted rendering primitives.
 		bgfx::frame();
 	}
+
+
+	bgfx::destroy(shaderProgram);
+
+	bgfx::destroy(vertexBuf);
+	bgfx::destroy(indexBuf);
 
 	bgfx::shutdown();
 	glfwTerminate();
