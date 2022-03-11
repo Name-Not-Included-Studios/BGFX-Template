@@ -114,11 +114,28 @@ int main(int argc, char** argv)
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
 		0x88aaffff, 1.0f, 0);
 
-	CubeQuad::init();
+
+
+	auto sampler = bgfx::createUniform("u_Sampler2D", bgfx::UniformType::Sampler);
+
+
+
+
+	auto texture = bgfx::createTexture2D(
+		bgfx::BackbufferRatio::Equal,
+		true,
+		1,
+		bgfx::TextureFormat::RGBA8I
+	);
+
+	bgfx::setTexture(0, sampler, texture, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE);
+
+
+	QuadVerts::init();
 	auto vertexBuff = bgfx::createVertexBuffer(
 		// Static data can be passed with bgfx::makeRef
 		bgfx::makeRef(s_quadVertices, sizeof(s_quadVertices)),
-		CubeQuad::cube_layout
+		QuadVerts::quad_layout
 	);
 
 	auto indexBuff = bgfx::createIndexBuffer(
@@ -127,6 +144,12 @@ int main(int argc, char** argv)
 	);
 
 	auto shaderProgram = loadProgram("vs_cubes.gl", "fs_cubes.gl");
+
+
+
+
+
+
 
 	// Set empty primitive on screen
 	bgfx::touch(mainView);
