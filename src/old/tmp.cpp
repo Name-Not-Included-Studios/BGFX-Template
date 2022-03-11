@@ -13,8 +13,8 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 
-//#include <glm/matrix.hpp>
-//#include <glm/gtx/transform.hpp>
+ //#include <glm/matrix.hpp>
+ //#include <glm/gtx/transform.hpp>
 
 #if BX_PLATFORM_LINUX
 #define GLFW_EXPOSE_NATIVE_X11
@@ -29,7 +29,7 @@
 
 
 #include "util.h"
-#include "CubeQuad.h"
+#include "cube.h"
 
 
 
@@ -55,7 +55,7 @@ int main(int argc, char** argv)
 		return 1;
 
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow* window = glfwCreateWindow(1600, 900, "Hello bgfx!", nullptr, nullptr); // glfwGetPrimaryMonitor(), nullptr
+	GLFWwindow* window = glfwCreateWindow(1600, 900, "Hello bgfx!", nullptr, nullptr);
 
 	if (!window)
 		return 1;
@@ -90,15 +90,24 @@ int main(int argc, char** argv)
 	if (!bgfx::init(init))
 		return 1;
 
+	PosColorVertex::init();
+	auto vertexBuff = bgfx::createVertexBuffer(
+		// Static data can be passed with bgfx::makeRef
+		bgfx::makeRef(s_cubeVertices, sizeof(s_cubeVertices)),
+		PosColorVertex::ms_decl
+	);
+
+	auto indexBuff = bgfx::createIndexBuffer(
+		// Static data can be passed with bgfx::makeRef
+		bgfx::makeRef(s_cubeTriList, sizeof(s_cubeTriList))
+	);
 
 
 
+	// 0x88aaffff
 
-	
+	auto shaderProgram = loadProgram("vs_cubes.gl", "fs_cubes.gl");
 
-	const bgfx::ViewId mainView = 0;
-
-	
 	// Reset window
 	bgfx::reset(width, height, BGFX_RESET_VSYNC);
 
@@ -106,29 +115,17 @@ int main(int argc, char** argv)
 	bgfx::setDebug(BGFX_DEBUG_TEXT /*| BGFX_DEBUG_STATS*/);
 
 	// Set view rectangle for 0th view
-	bgfx::setViewRect(mainView, 0, 0, bgfx::BackbufferRatio::Equal);
+	bgfx::setViewRect(0, 0, 0, uint16_t(width), uint16_t(height));
 
 	// Clear the view rect
-	bgfx::setViewClear(mainView,
+	bgfx::setViewClear(0,
 		BGFX_CLEAR_COLOR | BGFX_CLEAR_DEPTH,
 		0x88aaffff, 1.0f, 0);
 
-	CubeQuad::init();
-	auto vertexBuff = bgfx::createVertexBuffer(
-		// Static data can be passed with bgfx::makeRef
-		bgfx::makeRef(s_quadVertices, sizeof(s_quadVertices)),
-		CubeQuad::cube_layout
-	);
 
-	auto indexBuff = bgfx::createIndexBuffer(
-		// Static data can be passed with bgfx::makeRef
-		bgfx::makeRef(s_quadTriList, sizeof(s_quadTriList))
-	);
-
-	auto shaderProgram = loadProgram("vs_cubes.gl", "fs_cubes.gl");
 
 	// Set empty primitive on screen
-	bgfx::touch(mainView);
+	bgfx::touch(0);
 
 	//float bearing = 0.0f;
 
@@ -141,7 +138,7 @@ int main(int argc, char** argv)
 
 		if (width != oldWidth || height != oldHeight) {
 			bgfx::reset((uint32_t)width, (uint32_t)height, BGFX_RESET_VSYNC);
-			bgfx::setViewRect(mainView, 0, 0, bgfx::BackbufferRatio::Equal);
+			bgfx::setViewRect(0, 0, 0, bgfx::BackbufferRatio::Equal);
 		}
 
 
@@ -169,6 +166,11 @@ int main(int argc, char** argv)
 
 		bgfx::setViewTransform(0, view, proj);
 
+		// Set view 0 default viewport.
+		bgfx::setViewRect(0, 0, 0,
+			width,
+			height);
+
 		bgfx::touch(0);
 
 
@@ -183,7 +185,7 @@ int main(int argc, char** argv)
 		// Set model matrix for rendering.
 		bgfx::setTransform(mtx);
 
-		
+
 
 
 
