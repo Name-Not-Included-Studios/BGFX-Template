@@ -16,13 +16,7 @@ cls
 pause
 cls
 
-.\shaderc.exe -f .\src\vs_cubes.sc -o .\out\vs_cubes.ppsl --type v --platform windows -p ppsl --varyingdef .\src\varying.def.sc
-.\shaderc.exe -f .\src\fs_cubes.sc -o .\out\fs_cubes.ppsl --type f --platform windows -p ppsl --varyingdef .\src\varying.def.sc
-
-pause
-cls
-
-.\shaderc.exe -f .\src\vs_cubes.sc -o .\out\vs_cubes.dx --type v --platform windows -p s_5_0 --varyingdef .\src\varying.def.sc
-.\shaderc.exe -f .\src\fs_cubes.sc -o .\out\fs_cubes.dx --type f --platform windows -p s_5_0 --varyingdef .\src\varying.def.sc
+.\shaderc.exe -f .\src\vs_cubes.sc -o .\out\vs_cubes.dx --type v --platform windows -p s_3_0 --varyingdef .\src\varying.def.sc
+.\shaderc.exe -f .\src\fs_cubes.sc -o .\out\fs_cubes.dx --type f --platform windows -p s_3_0 --varyingdef .\src\varying.def.sc
 
 pause

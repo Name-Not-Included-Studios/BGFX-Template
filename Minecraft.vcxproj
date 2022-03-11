@@ -122,8 +122,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\Debug\glfw;$(ProjectDir)lib\Debug\bgfx;$(ProjectDir)lib\Debug\bimg;$(ProjectDir)lib\Debug\bnet;$(ProjectDir)lib\Debug\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3_mt.lib;bgfxDebug.lib;bimgDebug.lib;bxDebug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3_mt.lib;bgfx$(Configuration).lib;bimg$(Configuration).lib;bx$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -135,25 +135,25 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3_mt.lib;bgfxRelease.lib;bimgRelease.lib;bxRelease.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)lib\Release\glfw;$(ProjectDir)lib\Release\bgfx;$(ProjectDir)lib\Release\bimg;$(ProjectDir)lib\Release\bnet;$(ProjectDir)lib\Release\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3_mt.lib;bgfx$(Configuration).lib;bimg$(Configuration).lib;bx$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\test_default_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BgfxCallback.h" />
     <ClInclude Include="src\fs_cubes.gl.h" />
-    <ClInclude Include="src\vs_cubes.gl.h" />
     <ClInclude Include="src\logo.h" />
+    <ClInclude Include="src\vs_cubes.gl.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
