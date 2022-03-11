@@ -51,6 +51,7 @@ static const bgfx::Memory* load(const char* _filePath)
 	// don't overflow the buffer!
 	if (length > sizeof(buffer))
 	{
+		std::cerr << "Shader Buffer was too small! (needed: " << length << ")" << std::endl;
 		length = sizeof(buffer);
 	}
 

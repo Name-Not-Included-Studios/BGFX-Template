@@ -13,8 +13,9 @@
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
 
-//#include <glm/matrix.hpp>
-//#include <glm/gtx/transform.hpp>
+#include <glm/matrix.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #if BX_PLATFORM_LINUX
 #define GLFW_EXPOSE_NATIVE_X11
@@ -151,14 +152,56 @@ int main(int argc, char** argv)
 
 
 
+		
+
+		//std::cout << view << std::endl;
+
+		const bx::Vec3 atBX = { 0.0f, 0.0f,   0.0f };
+		const bx::Vec3 eyeBX = { 0.0f, 0.0f, 10.0f };
+
+		float viewBX[16];
+		bx::mtxLookAt(viewBX, eyeBX, atBX);
 
 
-		const bx::Vec3 at = { 0.0f, 0.0f,   0.0f };
-		const bx::Vec3 eye = { 0.0f, 0.0f, 10.0f };
 
-		// Set view and projection matrix for view 0.
-		float view[16];
-		bx::mtxLookAt(view, eye, at);
+
+
+		glm::vec3 eye(0.0f, 0.0f, 10.0f);
+		glm::vec3 center(0.0f, 0.0f, 0.0f);
+
+		glm::vec3 up(0.0f, 1.0f, 0.0f);
+		glm::mat4 view = glm::lookAt(eye, center, up);
+		view = glm::inverse(view);
+
+
+
+		/*
+		printf("BX:-------------------------------------\n");
+
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				printf("[%.2f]", viewBX[i * 4 + j]);
+			}
+			printf("\n");
+		}
+
+		printf("GLM:-------------------------------------\n");
+
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				printf("[%.2f]", view[i][j]);
+			}
+			printf("\n");
+		}
+
+		printf("\n\n\n\n");
+		*/
+
+
 
 		float proj[16];
 		bx::mtxProj(proj,
@@ -167,7 +210,8 @@ int main(int argc, char** argv)
 			0.1f, 100.0f,
 			bgfx::getCaps()->homogeneousDepth);
 
-		bgfx::setViewTransform(0, view, proj);
+		bgfx::setViewTransform(mainView, viewBX, proj);
+		//bgfx::setViewTransform(mainView, glm::value_ptr(view), proj);
 
 		bgfx::touch(0);
 
