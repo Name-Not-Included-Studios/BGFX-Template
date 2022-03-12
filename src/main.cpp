@@ -28,8 +28,14 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 
 #include "util.h"
+//#include "bgfx_util/common/common.h"
+//#include "bgfx_util/common/bgfx_utils.h"
+
 #include "CubeQuad.h"
 
 
@@ -116,19 +122,41 @@ int main(int argc, char** argv)
 
 
 
-	auto sampler = bgfx::createUniform("u_Sampler2D", bgfx::UniformType::Sampler);
+	auto sampler = bgfx::createUniform("s_texColor", bgfx::UniformType::Sampler);
 
 
+	//auto texture = loadTexture("res/cobble.tga"); //res/cobble.tga
 
-
-	auto texture = bgfx::createTexture2D(
+	/*auto texture = bgfx::createTexture2D(
 		bgfx::BackbufferRatio::Equal,
 		true,
 		1,
 		bgfx::TextureFormat::RGBA8I
-	);
+	);*/
 
-	bgfx::setTexture(0, sampler, texture, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE);
+	bgfx::TextureHandle texture;
+
+	{
+		int w;
+		int h;
+		int comp;
+		unsigned char* image = stbi_load("res/textures/cobble.png", &w, &h, &comp, STBI_rgb); //STBI_rgb_alpha
+
+		std::cout << "1" << std::endl;
+
+		if (image == nullptr)
+		{
+			throw(std::string("Failed to load texture"));
+			std::cout << "ERR" << std::endl;
+		}
+
+		size_t len = w * h * comp * sizeof(char);
+
+		auto textureMem = bgfx::copy(image, len);
+		texture = bgfx::createTexture(textureMem);
+		stbi_image_free(image);
+	}
+
 
 
 	QuadVerts::init();
@@ -143,7 +171,7 @@ int main(int argc, char** argv)
 		bgfx::makeRef(s_quadTriList, sizeof(s_quadTriList))
 	);
 
-	auto shaderProgram = loadProgram("vs_cubes.gl", "fs_cubes.gl");
+	auto shaderProgram = loadProgram("res/shaders/vs_tex.gl", "res/shaders/fs_tex.gl");
 
 
 
@@ -315,6 +343,9 @@ int main(int argc, char** argv)
 		//}
 
 
+
+		bgfx::setTexture(0, sampler, texture);
+		//bgfx::setTexture(0, sampler, texture, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE);
 
 
 

@@ -125,6 +125,9 @@
       <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3_mt.lib;bgfx$(Configuration).lib;bimg$(Configuration).lib;bx$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)src\res" "$(TargetDir)res" /E /I /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -145,6 +148,9 @@
       <AdditionalDependencies>glfw3_mt.lib;bgfx$(Configuration).lib;bimg$(Configuration).lib;bx$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)src\res" "$(TargetDir)res" /E /I /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
