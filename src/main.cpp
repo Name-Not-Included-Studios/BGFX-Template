@@ -5,6 +5,9 @@
 #define BX_CONFIG_DEBUG true
 
 #include <iostream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
 #include <stdio.h>
 
 #include <bx/bx.h>
@@ -31,7 +34,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-
+#include "util/util.hpp"
 #include "util.h"
 //#include "bgfx_util/common/common.h"
 //#include "bgfx_util/common/bgfx_utils.h"
@@ -134,27 +137,63 @@ int main(int argc, char** argv)
 		bgfx::TextureFormat::RGBA8I
 	);*/
 
-	bgfx::TextureHandle texture;
+	fs::path path = fs::current_path().concat("\\res\\textures\\cobble.tga");
+
+	auto tex = load_texture(path.string());
+
+	auto a = tex.unwrap();
+
+	std::cout << "Val X: " << tex.unwrap()._Myfirst._Val.x << std::endl;
+	std::cout << "Val Y: " << tex.unwrap()._Myfirst._Val.y << std::endl;
+
+	//bgfx::TextureHandle texture = load_texture(path.string());
 
 	{
-		int w;
+		/*int w;
 		int h;
 		int comp;
-		unsigned char* image = stbi_load("res/textures/cobble.png", &w, &h, &comp, STBI_rgb); //STBI_rgb_alpha
+		unsigned char* image;
 
-		std::cout << "1" << std::endl;
+		fs::path path = fs::current_path().concat("\\res\\textures\\cobble.tga");*/
 
-		if (image == nullptr)
-		{
-			throw(std::string("Failed to load texture"));
-			std::cout << "ERR" << std::endl;
-		}
 
-		size_t len = w * h * comp * sizeof(char);
+		/*std::cout << "The current path " << p << " decomposes into:\n" OLD
+			<< "root-path " << p.root_path() << '\n'
+			<< "relative path " << p.relative_path() << '\n';*/
 
-		auto textureMem = bgfx::copy(image, len);
-		texture = bgfx::createTexture(textureMem);
-		stbi_image_free(image);
+		//std::string fullPath = path + rel; OLD
+
+		//std::cout << "Path: " << path << std::endl; OLD
+
+		//std::cout << "S Path: " << path.string() << std::endl; OLD
+
+		//std::cout << "C Path: " << path.string().c_str() << std::endl; OLD
+		
+		
+		
+		//image = stbi_load(path.string().c_str(), &w, &h, &comp, STBI_rgb_alpha); //STBI_rgb_alpha
+
+
+		//if (image == nullptr)
+		//{
+		//	throw(std::string("Failed to load texture"));
+		//	//std::cout << "ERROR: " << stbi_failure_reason() << std::endl; OLD
+		//}
+
+		//size_t len = w * h * comp;// * sizeof(char);
+
+		//if (comp == 3)
+		//	texture = bgfx::createTexture2D(w, h, false, 1, bgfx::TextureFormat::RGB8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, bgfx::copy(image, len));
+		//else if (comp == 4)
+		//	texture = bgfx::createTexture2D(w, h, false, 1, bgfx::TextureFormat::RGBA8, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE, bgfx::copy(image, len));
+
+
+
+		//auto textureMem = bgfx::copy(image, len); BAD
+		//texture = bgfx::createTexture(textureMem); BAD
+		
+
+		//stbi_image_free(image);
 	}
 
 
@@ -344,7 +383,7 @@ int main(int argc, char** argv)
 
 
 
-		bgfx::setTexture(0, sampler, texture);
+		//bgfx::setTexture(0, sampler, texture);
 		//bgfx::setTexture(0, sampler, texture, BGFX_TEXTURE_NONE | BGFX_SAMPLER_NONE);
 
 
