@@ -1,6 +1,24 @@
 //#define BX_CONFIG_DEBUG true
-
 //#define ENTRY_CONFIG_IMPLEMENT_MAIN 1
+
+// Debug
+// 
+// Additional Include
+// $(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)
+// 
+// Dependencies
+// bgfx$(Configuration).lib
+// bimg$(Configuration).lib
+// bx$(Configuration).lib
+// 
+// Release
+// 
+// Additional Include
+// $(ProjectDir)lib\$(Configuration)\glfw;$(ProjectDir)lib\$(Configuration)\bgfx;$(ProjectDir)lib\$(Configuration)\bimg;$(ProjectDir)lib\$(Configuration)\bnet;$(ProjectDir)lib\$(Configuration)\bx;%(AdditionalLibraryDirectories)
+// Depend
+// bgfx$(Configuration).lib
+// bimg$(Configuration).lib
+// bx$(Configuration).lib
 
 #include <iostream>
 //#include <filesystem>
@@ -35,8 +53,8 @@
 //#include "util/util.hpp"
 //#include "my_util.h"
  
-#include "bgfx_util/common/common.h"
-#include "bgfx_util/common/bgfx_utils.h"
+#include "bgfx/examples/common/common.h"
+#include "bgfx/examples/common/bgfx_utils.h"
 
 #include "CubeQuad.h"
 
