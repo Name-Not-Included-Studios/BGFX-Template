@@ -18,19 +18,8 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="src\fs_cubes.gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\logo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="BgfxCallback.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\vs_cubes.gl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="src\bgfx_util\common\bgfx_utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

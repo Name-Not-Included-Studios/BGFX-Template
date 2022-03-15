@@ -1,17 +1,15 @@
-/*
- * Copyright 2011-2019 Branimir Karadzic. All rights reserved.
- * License: https://github.com/bkaradzic/bgfx#license-bsd-2-clause
- */
-#define BX_CONFIG_DEBUG true
+//#define BX_CONFIG_DEBUG true
+
+//#define ENTRY_CONFIG_IMPLEMENT_MAIN 1
 
 #include <iostream>
-#include <filesystem>
-namespace fs = std::filesystem;
+//#include <filesystem>
+//namespace fs = std::filesystem;
 
-#include <stdio.h>
+//#include <stdio.h>
 
 #include <bx/bx.h>
-#include <bx/math.h>
+//#include <bx/math.h>
 
 #include <bgfx/bgfx.h>
 #include <bgfx/platform.h>
@@ -31,16 +29,19 @@ namespace fs = std::filesystem;
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
+//#define STB_IMAGE_IMPLEMENTATION
+//#include <stb/stb_image.h>
 
-#include "util/util.hpp"
-#include "util.h"
-//#include "bgfx_util/common/common.h"
-//#include "bgfx_util/common/bgfx_utils.h"
+//#include "util/util.hpp"
+//#include "my_util.h"
+ 
+#include "bgfx_util/common/common.h"
+#include "bgfx_util/common/bgfx_utils.h"
 
 #include "CubeQuad.h"
 
+// Properties -> Build Events -> Post-Build Events -> Command Line
+// xcopy "$(SolutionDir)src\res" "$(TargetDir)res" / E / I / Y
 
 
 static bool s_showStats = false;
@@ -137,14 +138,16 @@ int main(int argc, char** argv)
 		bgfx::TextureFormat::RGBA8I
 	);*/
 
-	fs::path path = fs::current_path().concat("\\res\\textures\\cobble.tga");
+	//fs::path path = fs::current_path().concat("\\res\\textures\\cobble.tga");
 
-	auto tex = load_texture(path.string());
+	auto text = loadTexture("res/textures/cobble.dds");
 
-	auto a = tex.unwrap();
+	//auto tex = load_texture(path.string());
 
-	std::cout << "Val X: " << tex.unwrap()._Myfirst._Val.x << std::endl;
-	std::cout << "Val Y: " << tex.unwrap()._Myfirst._Val.y << std::endl;
+	//auto a = tex.unwrap();
+
+	//std::cout << "Val X: " << tex.unwrap()._Myfirst._Val.x << std::endl;
+	//std::cout << "Val Y: " << tex.unwrap()._Myfirst._Val.y << std::endl;
 
 	//bgfx::TextureHandle texture = load_texture(path.string());
 
